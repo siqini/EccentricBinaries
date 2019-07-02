@@ -1,3 +1,8 @@
-*pdf
-*txt
-*png
+*.pdf
+*.txt
+*.png
+*.hdf
+eccentric_papers
+*checkpoints
+Untitled*
+

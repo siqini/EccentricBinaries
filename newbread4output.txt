@@ -1,5 +1,0 @@
-Start time: 2019-06-27 23:48:38.046764
-Injection number: 1
-injection mass 1: 1.1
-injection mass 2: 1.1
-injection mchirp: 0.9576056196257366
