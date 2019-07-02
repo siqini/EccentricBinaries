@@ -6,6 +6,18 @@ from pycbc.distributions import sky_location
 import pycbc.psd
 from pycbc.filter.matchedfilter import match
 
+"""
+function GenWaveforms
+	Input: mass1 (float) 
+	       mass2 (float)
+	       apx (string) a frequency-domain approximant
+	       ecc (float) eccentricity [0,1]
+	       lan (float) longitude of ascending nodes axis (in rad)
+               inc (float) inclination (in rad)
+               f_low (float) lower cutoff frequency (in Hz)
+               freq_step (int) 1/delta_f, frequency step used to generate the waveform
+	Output: [plus polarization waveform, cross polarization waveform] (a list of FrequencySeries)
+"""
 def GenWaveforms (mass1, mass2, apx, ecc, lan, inc, f_low, freq_step):
     hptilde, hctilde = get_fd_waveform (approximant = apx,
                         mass1 = mass1,
@@ -17,12 +29,28 @@ def GenWaveforms (mass1, mass2, apx, ecc, lan, inc, f_low, freq_step):
                         delta_f = 1.0/freq_step)
     return [hptilde, hctile]
 
+"""
+function EinheitlicheHimmel
+	Input: sample_number (int)
+	Output: [sample right ascensions, sample declinations] both arrays have n=sample_number entries of float, so you get that number of equatorial coordinates in radians 
+"""
+
 def EinheitlicheHimmel (sample_number):
     uniform_sky_distribution = sky_location.UniformSky()
     solid_angle_samples = uniform_sky_distribution.rvs(sample_number)
     sample_ra = solid_angle_samples['ra']
     sample_dec = solid_angle_samples['dec']
     return [sample_ra, sample_dec]
+
+"""
+function GetMatch
+	Input: waveform0p, waveform0c, waveform1p, waveform1c frequency-domain waveforms (FrequencySeries). 0 and 1 are indices for the two waveforms being compared, and p and c indicate plus/cross polarizations
+	       detector_c, detector_p antenna patterns for some predetermined sky location and orientation at some detector. The observed waveforms at the detector will be a linear combo of p and c waveforms with detector_p and detector_c as expansion coefficients
+	       psd_file (string) 
+	       f_low (float) lower cutoff frequency (in Hz)
+	       freq_step (int) 1/delta_f
+	Output: match between the two waveforms as observed by the detector (float)
+"""
 
 def GetMatch (waveform0p, waveform0c, waveform1p, waveform1c, detector_c, detector_p, psd_file='./H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt', f_low=30.,freq_step=4):
 	flen = max(len(waveform0p), len(waveform0c), len(waveform1p), len(waveform1c))
@@ -36,6 +64,16 @@ def GetMatch (waveform0p, waveform0c, waveform1p, waveform1c, detector_c, detect
 	my_psd = pycbc.psd.read.from_txt(filename = psd_file, length = flen, delta_f = 1.0/4, low_freq_cutoff = f_low, is_asd_file = False)
 	m,i = match(waveform0_detector, waveform1_detector, psd = my_psd, low_frequency_cutoff = f_low)
 	return m
+
+"""
+function GetFittingFactor
+	Input: mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index injection parameter indices, all ints
+	       tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc, tp_apx template bank parameters, all numpy arrays of the same length
+               searching_radius (float) we only compute matches between two waveforms with a mchirp percentage difference smaller than this searching radius, otherwise it's gonna take forever and we do love our computers 
+	       f_low (float) lower cutoff frequency (in Hz)
+	       freq_step (int) 1/delta_f
+	Output: fitting factor (float) maximum match for the injection when recovered by the given template bank
+"""
 
 def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, f_low=30., freq_step=4):
 	inj_m1 = inj_mass1[mass1_index]
