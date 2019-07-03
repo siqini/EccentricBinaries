@@ -91,12 +91,9 @@ def GetGlobalMatch(i_waveform0, j_waveform0, tp_apx, tp_m1, tp_m2, tp_ecc, tp_la
     waveform0_m1 = masses1[i_waveform0]
     waveform0_m2 = masses2[j_waveform0]
     print ("injection mass 1: %s" % waveform0_m1)
-    sys.stdout.flush()
     print ("injection mass 2: %s" % waveform0_m2)
-    sys.stdout.flush()
     waveform0_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(waveform0_m1, waveform0_m2) #compute mchirp of waveform0
     print ("injection mchirp: %s" % waveform0_mchirp)
-    sys.stdout.flush()
     waveform0 = GenTemplate(mass1=waveform0_m1, mass2=waveform0_m2,
                            apx = 'TaylorF2',
                            ecc = 0.,
