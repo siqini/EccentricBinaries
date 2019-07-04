@@ -26,6 +26,7 @@ parser.add_argument('-l', '--ecc_lb', type=float, required=True,
 dest='ecc_lower_bound', help='eccentricity lower bound')
 parser.add_argument('-u', '--ecc_ub', type=float, required=True,
 dest='ecc_upper_bound', help='eccentricity upper bound')
+parser.add_argument('-f', '--fileind', type=int, required=True, dest='file_ind', help='filename index')
 parser.add_argument('-m', '--masses_num', type=int, required=False, dest='mass_num', default=10)
 parser.add_argument('-i', '--inclination_num', type=int, required=False, dest='inc_num', default=10)
 parser.add_argument('-e', '--eccentricity_num', type=int, required=False, dest='ecc_num', default=10)
@@ -34,6 +35,10 @@ args = parser.parse_args()
 
 start = datetime.now()
 print ("Start time: %s" % start)
+
+my_txt_files = ['ecc_inj_output0.txt', 'ecc_inj_output1.txt', 'ecc_inj_output2.txt', 'ecc_inj_output3.txt', 'ecc_inj_output4.txt']
+
+
 
 # Construct the injection parameter space
 mass_num = args.mass_num
@@ -115,7 +120,7 @@ arr_m1 = np.reshape(arr_m1, (len(arr_m1),1))
 arr_m2 = np.reshape(arr_m2, (len(arr_m2),1))
 my_arr = np.hstack((arr_m1, arr_m2, arr_fitting_factors))
 
-with open("ecc_inj0.txt", "ab") as f:
+with open(my_txt_files[args.file_ind], "ab") as f:
 	np.savetxt(f, X=my_arr, delimiter=',')
 f.close()
 
