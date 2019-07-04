@@ -8,7 +8,7 @@ from pycbc.filter.matchedfilter import match
 
 """
 function GenWaveforms
-	Input: mass1 (float) 
+	Input: mass1 (float)
 	       mass2 (float)
 	       apx (string) a frequency-domain approximant
 	       ecc (float) eccentricity [0,1]
@@ -32,7 +32,7 @@ def GenWaveforms (mass1, mass2, apx, ecc, lan, inc, f_low, freq_step):
 """
 function EinheitlicheHimmel
 	Input: sample_number (int)
-	Output: [sample right ascensions, sample declinations] both arrays have n=sample_number entries of float, so you get that number of equatorial coordinates in radians 
+	Output: [sample right ascensions, sample declinations] both arrays have n=sample_number entries of float, so you get that number of equatorial coordinates in radians
 """
 
 def EinheitlicheHimmel (sample_number):
@@ -46,13 +46,13 @@ def EinheitlicheHimmel (sample_number):
 function GetMatch
 	Input: waveform0p, waveform0c, waveform1p, waveform1c frequency-domain waveforms (FrequencySeries). 0 and 1 are indices for the two waveforms being compared, and p and c indicate plus/cross polarizations
 	       detector_c, detector_p antenna patterns for some predetermined sky location and orientation at some detector. The observed waveforms at the detector will be a linear combo of p and c waveforms with detector_p and detector_c as expansion coefficients
-	       psd_file (string) 
+	       psd_file (string)
 	       f_low (float) lower cutoff frequency (in Hz)
 	       freq_step (int) 1/delta_f
 	Output: match between the two waveforms as observed by the detector (float)
 """
 
-def GetMatch (waveform0p, waveform0c, waveform1p, waveform1c, detector_c, detector_p, psd_file='./H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt', f_low=30.,freq_step=4):
+def GetMatch (waveform0p, waveform0c, waveform1p, waveform1c, detector_c, detector_p, psd_file, f_low=30.,freq_step=4):
 	flen = max(len(waveform0p), len(waveform0c), len(waveform1p), len(waveform1c))
 	waveform0p.resize(flen)
 	waveform0c.resize(flen)
@@ -69,13 +69,13 @@ def GetMatch (waveform0p, waveform0c, waveform1p, waveform1c, detector_c, detect
 function GetFittingFactor
 	Input: mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index injection parameter indices, all ints
 	       tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc, tp_apx template bank parameters, all numpy arrays of the same length
-               searching_radius (float) we only compute matches between two waveforms with a mchirp percentage difference smaller than this searching radius, otherwise it's gonna take forever and we do love our computers 
+               searching_radius (float) we only compute matches between two waveforms with a mchirp percentage difference smaller than this searching radius, otherwise it's gonna take forever and we do love our computers
 	       f_low (float) lower cutoff frequency (in Hz)
 	       freq_step (int) 1/delta_f
 	Output: fitting factor (float) maximum match for the injection when recovered by the given template bank
 """
 
-def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, f_low=30., freq_step=4):
+def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, f_low=30., freq_step=4):
 	inj_m1 = inj_mass1[mass1_index]
 	inj_m2 = inj_mass2[mass2_index]
 	inj_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(inj_m1, inj_m2)
@@ -86,7 +86,7 @@ def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index,
 	ra = sample_ras[sky_loc_index]
 	dec = sample_decs[sky_loc_index]
 	pol_angle = sample_pols[pol_index]
-	fp, fc = d.antenna_pattern(ra, dec, pol_angle, time)	
+	fp, fc = d.antenna_pattern(ra, dec, pol_angle, time)
 	local_matches = np.zeros(len(tp_m1))
 	relevant_temp_counter = 0
 	# iterate through the given template bank
@@ -103,26 +103,17 @@ def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index,
 			one_relevant_temps = GenWaveforms(mass1 = this_tp_m1, mass2 = this_tp_m2, apx = tp_apx[k], ecc = tp_ecc[k], lan=tp_lan[k], inc=tp_inc[k], f_low = f_low, freq_step = freq_step)
 			one_rel_temp_p = one_relevant_temps[0]
 			one_rel_temp_c = one_relevant_temps[1]
-			# compute the match				 
-			this_local_match = GetMatch(waveform0p = inj_p, waveform0c = inj_c, waveform1p = one_rel_temp_p, waveform1c = one_rel_temp_c, detector_c = fc, detector_p = fp)
+			# compute the match
+			this_local_match = GetMatch(waveform0p = inj_p, waveform0c = inj_c, waveform1p = one_rel_temp_p, waveform1c = one_rel_temp_c, detector_c = fc, detector_p = fp, psd_file=psd_file)
 			local_matches[k] = this_local_match
 	fitting_factor = np.amax(local_matches)
 	print ("Injection mass1: %s" % inj_m1)
-	sys.stdout.flush()
 	print ("Injection mass2: %s" % inj_m2)
-	sys.stdout.flush()
 	print ("Injection inclination: %s" % inj_inc[inc_index])
-	sys.stdout.flush()
 	print ("Injection eccentricity: %s" % inj_ecc[ecc_index])
-	sys.stdout.flush()
 	print ("Injection long asc nodes: %s" % inj_long_asc_nodes[lan_index])
-	sys.stdout.flush()
 	print ("Injection RA: %s" % ra)
-	sys.stdout.flush()
 	print ("Injection Dec: %s" % dec)
-	sys.stdout.flush()
 	print ("Injection polarization angle: %s" % pol_angle)
-	sys.stdout.flush()
 	print ("Fitting factor: %s" % fitting_factor)
-	sys.stdout.flush()			
 	return fitting_factor
