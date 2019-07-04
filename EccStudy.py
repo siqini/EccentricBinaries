@@ -75,7 +75,7 @@ function GetFittingFactor
 	Output: fitting factor (float) maximum match for the injection when recovered by the given template bank
 """
 
-def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, inj_mass1, inj_mass2, inj_ecc, inj_lan, inj_inc, my_ras, my_decs,my_pols, f_low=30., freq_step=4):
+def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, inj_mass1, inj_mass2, inj_ecc, inj_lan, inj_inc, my_ras, my_decs,my_pols, my_detector f_low=30., freq_step=4):
 	inj_m1 = inj_mass1[mass1_index]
 	inj_m2 = inj_mass2[mass2_index]
 	inj_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(inj_m1, inj_m2)
@@ -86,7 +86,7 @@ def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index,
 	ra = my_ras[sky_loc_index]
 	dec = my_decs[sky_loc_index]
 	pol_angle = my_pols[pol_index]
-	fp, fc = d.antenna_pattern(ra, dec, pol_angle, time)
+	fp, fc = my_detector.antenna_pattern(ra, dec, pol_angle, time)
 	local_matches = np.zeros(len(tp_m1))
 	relevant_temp_counter = 0
 	# iterate through the given template bank

@@ -104,7 +104,7 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 								tp_inc=np.zeros(len(necc_mass1)),
 								tp_apx=necc_apx,
 								searching_radius=args.searching_radius,
-								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc, my_ras = sample_ras, my_decs = sample_decs, my_pols = sample_pols))
+								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc, my_ras = sample_ras, my_decs = sample_decs, my_pols = sample_pols, my_detector = d))
 								m1s.append(inj_mass1[m1_ind])
 								m2s.append(inj_mass2[m2_ind])
 
