@@ -1,5 +1,5 @@
 """
-Eccentric injections with non-eccentric template bank
+Eccentric injections, can switch between non-eccentric template bank and eccentric template bank
 """
 import argparse
 from pycbc.waveform import get_fd_waveform
@@ -18,7 +18,7 @@ from pycbc.detector import Detector
 import EccStudy
 
 parser = argparse.ArgumentParser(description='Compute matches between eccentric injections and non-ecc template bank')
-parser.add_argument('-t', '--templates', type=str, required=True, dest='tbank_filename', help='filename of the template bank')
+parser.add_argument('-t', '--templates', type=int, required=True, dest='tbank_fileind', help='filename index of the template bank')
 parser.add_argument('-p', '--psd', type=str, required=True, dest='psd_filename',help='filename of psd')
 parser.add_argument('-s', '--radius', type=float, required=False, dest='searching_radius', help='searching radius', default = 0.05)
 parser.add_argument('-b', '--batchnum', type=int, required=True, dest='batch_num', help = 'batch number')
@@ -37,7 +37,7 @@ start = datetime.now()
 print ("Start time: %s" % start)
 
 my_txt_files = ['ecc_inj_output0.txt', 'ecc_inj_output1.txt', 'ecc_inj_output2.txt', 'ecc_inj_output3.txt', 'ecc_inj_output4.txt']
-
+my_tbank_files = ['stand.hdf', 'ebank.hdf']
 
 
 # Construct the injection parameter space
@@ -51,10 +51,37 @@ my_inj_ecc = np.linspace(0.,0.4, num=ecc_num)
 my_inj_long_asc_nodes = np.linspace(0., 2*np.pi, num=long_asc_nodes_num)
 
 # Grab the non-eccentric template bank
-f_necc = h5py.File(args.tbank_filename, 'r')
+f_necc = h5py.File(my_tbank_files[args.tbank_fileind], 'r')
+keys = f_necc.keys()
 necc_mass1 = f_necc['mass1'][:]
 necc_mass2 = f_necc['mass2'][:]
 necc_apx = f_necc['approximant'][:]
+if (necc_apx[0] == 'EccentricFD_INTERP'):
+	for i_apx in range(0,len(necc_apx)):
+		necc_apx[i_apx] = 'EccentricFD'
+if ((u'eccentricity') not in keys):
+	necc_eccentricity = np.zeros(len(necc_mass1))
+else:
+	necc_eccentricity = f_necc['eccentricity'][:]
+if ((u'inclination') not in keys):
+	necc_inclination = np.zeros(len(necc_mass1))
+else:
+	necc_inclination = f_necc['inclination'][:]
+if ((u'long_asc_nodes') not in keys):
+	necc_lan = np.zeros(len(necc_mass1))
+else:
+	necc_lan = f_necc['inclination'][:]
+
+
+f_ecc = h5py.File(args.tbank_filename, 'r')
+ecc_mass1 = f_ecc['mass1'][:]
+ecc_mass2 = f_ecc['mass2'][:]
+ecc_eccentricity = f_necc['eccentricity'][:]
+ecc_lan = f_ecc['long_asc_nodes'][:]
+ecc_inc = f_ecc['inclination'][:]
+ecc_apx = np.empty(len(ecc_mass1), object)
+for i_apx in range(0, len(ecc_apx)):
+    ecc_apx[i_apx] = 'EccentricFD'
 
 # Also fix a time.
 my_time = 1000000000
@@ -99,9 +126,9 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 								pol_index=pol_ind,
 								tp_m1=necc_mass1,
 								tp_m2=necc_mass2,
-								tp_ecc=np.zeros(len(necc_mass1)),
-								tp_lan=np.zeros(len(necc_mass1)),
-								tp_inc=np.zeros(len(necc_mass1)),
+								tp_ecc=necc_eccentricity,
+								tp_lan=necc_lan,
+								tp_inc=necc_inclination,
 								tp_apx=necc_apx,
 								searching_radius=args.searching_radius,
 								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc, my_ras = sample_ras, my_decs = sample_decs, my_pols = sample_pols, my_detector = d, time=my_time))
