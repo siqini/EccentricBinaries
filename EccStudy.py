@@ -75,7 +75,7 @@ function GetFittingFactor
 	Output: fitting factor (float) maximum match for the injection when recovered by the given template bank
 """
 
-def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, f_low=30., freq_step=4):
+def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, inj_mass1, inj_mass2, inj_ecc, inj_lan, inj_inc, f_low=30., freq_step=4):
 	inj_m1 = inj_mass1[mass1_index]
 	inj_m2 = inj_mass2[mass2_index]
 	inj_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(inj_m1, inj_m2)

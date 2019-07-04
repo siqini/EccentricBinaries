@@ -20,7 +20,7 @@ import EccStudy
 parser = argparse.ArgumentParser(description='Compute matches between eccentric injections and non-ecc template bank')
 parser.add_argument('-t', '--templates', type=str, required=True, dest='tbank_filename', help='filename of the template bank')
 parser.add_argument('-p', '--psd', type=str, required=True, dest='psd_filename',help='filename of psd')
-parser.add_argument('-s', '--radius', type=float, required=False, dest='searcing_radius', help='searching radius', default = 0.05)
+parser.add_argument('-s', '--radius', type=float, required=False, dest='searching_radius', help='searching radius', default = 0.05)
 parser.add_argument('-b', '--batchnum', type=int, required=True, dest='batch_num', help = 'batch number')
 parser.add_argument('-l', '--ecc_lb', type=float, required=True,
 dest='ecc_lower_bound', help='eccentricity lower bound')
@@ -45,10 +45,10 @@ mass_num = args.mass_num
 inc_num = args.inc_num
 ecc_num = args.ecc_num
 long_asc_nodes_num = args.lan_num
-inj_mass1 = inj_mass2 = np.linspace(1.1,1.6,num=mass_num)
-inj_inc = np.linspace(0.,np.pi,num=inc_num)
-inj_ecc = np.linspace(0.,0.4, num=ecc_num)
-inj_long_asc_nodes = np.linspace(0., 2*np.pi, num=long_asc_nodes_num)
+my_inj_mass1 = my_inj_mass2 = np.linspace(1.1,1.6,num=mass_num)
+my_inj_inc = np.linspace(0.,np.pi,num=inc_num)
+my_inj_ecc = np.linspace(0.,0.4, num=ecc_num)
+my_inj_long_asc_nodes = np.linspace(0., 2*np.pi, num=long_asc_nodes_num)
 
 # Grab the non-eccentric template bank
 f_necc = h5py.File(args.tbank_filename, 'r')
@@ -78,7 +78,6 @@ print ("Total injection number: %s" % total_inj_num)
 # Fix some eccentricity, and then contour plot fitting factor against m1*m2
 #eccentricity_lower_bound = 0.
 #eccentricity_upper_bound = 0.04
-axis_data_pt_counter = (mass_num**2)*inc_num*lan_num*loc_num*pol_num*2
 fitting_factors = []
 m1s = []
 m2s = []
@@ -89,9 +88,9 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 			for m2_ind in (0,mass_num):
 				for inc_ind in range(0,inc_num):
 					for lan_ind in range(0,long_asc_nodes_num):
-						for loc_ind in range(0,location_sample_num):
+						for loc_ind in range(0,location_sample_number):
 							for pol_ind in range(0,polarization_num):
-								fitting_factors.append(mass1_index=m1_ind,
+								fitting_factors.append(EccStudy.GetFittingFactor(mass1_index=m1_ind,
 								mass2_index=m2_ind,
 								inc_index=inc_ind,
 								ecc_index=ecc_ind,
@@ -105,7 +104,7 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 								tp_inc=np.zeros(len(necc_mass1)),
 								tp_apx=necc_apx,
 								searching_radius=args.searching_radius,
-								psd_file=args.psd_filename)
+								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc))
 								m1s.append(inj_mass1[m1_ind])
 								m2s.append(inj_mass2[m2_ind])
 
