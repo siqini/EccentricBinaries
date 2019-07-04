@@ -84,7 +84,7 @@ m2s = []
 
 for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 	for ecc_ind in range(0,ecc_num):
-		if (inj_ecc[ecc_ind] <= args.ecc_upper_bound) and (inj_ecc[ecc_ind] >= args.ecc_lower_bound):
+		if (my_inj_ecc[ecc_ind] <= args.ecc_upper_bound) and (my_inj_ecc[ecc_ind] >= args.ecc_lower_bound):
 			for m2_ind in (0,mass_num):
 				for inc_ind in range(0,inc_num):
 					for lan_ind in range(0,long_asc_nodes_num):
@@ -104,7 +104,7 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 								tp_inc=np.zeros(len(necc_mass1)),
 								tp_apx=necc_apx,
 								searching_radius=args.searching_radius,
-								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc))
+								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc, my_ras = sample_ras, my_decs = sample_decs, my_pols = sample_pols))
 								m1s.append(inj_mass1[m1_ind])
 								m2s.append(inj_mass2[m2_ind])
 

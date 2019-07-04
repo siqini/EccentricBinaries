@@ -27,7 +27,7 @@ def GenWaveforms (mass1, mass2, apx, ecc, lan, inc, f_low, freq_step):
 			long_asc_nodes = lan,
                         f_lower = f_low,
                         delta_f = 1.0/freq_step)
-    return [hptilde, hctile]
+    return [hptilde, hctilde]
 
 """
 function EinheitlicheHimmel
@@ -75,17 +75,17 @@ function GetFittingFactor
 	Output: fitting factor (float) maximum match for the injection when recovered by the given template bank
 """
 
-def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, inj_mass1, inj_mass2, inj_ecc, inj_lan, inj_inc, f_low=30., freq_step=4):
+def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index, sky_loc_index, pol_index, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc,tp_apx, searching_radius, psd_file, inj_mass1, inj_mass2, inj_ecc, inj_lan, inj_inc, my_ras, my_decs,my_pols, f_low=30., freq_step=4):
 	inj_m1 = inj_mass1[mass1_index]
 	inj_m2 = inj_mass2[mass2_index]
 	inj_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(inj_m1, inj_m2)
-	inj_waveforms = GenWaveforms(inj_m1, inj_m2, apx="EccentricFD", ecc=inj_ecc[ecc_index], lan=inj_long_asc_nodes[lan_index], inc=inj_inc[inc_index], f_low=f_low, freq_step=freq_step)
+	inj_waveforms = GenWaveforms(inj_m1, inj_m2, apx="EccentricFD", ecc=inj_ecc[ecc_index], lan=inj_lan[lan_index], inc=inj_inc[inc_index], f_low=f_low, freq_step=freq_step)
 	inj_p = inj_waveforms[0]
 	inj_c = inj_waveforms[1]
 	# Get the antenna pattern at the Hanford detector
-	ra = sample_ras[sky_loc_index]
-	dec = sample_decs[sky_loc_index]
-	pol_angle = sample_pols[pol_index]
+	ra = my_ras[sky_loc_index]
+	dec = my_decs[sky_loc_index]
+	pol_angle = my_pols[pol_index]
 	fp, fc = d.antenna_pattern(ra, dec, pol_angle, time)
 	local_matches = np.zeros(len(tp_m1))
 	relevant_temp_counter = 0
