@@ -4,9 +4,6 @@ Eccentric injections, can switch between non-eccentric template bank and eccentr
 import argparse
 from pycbc.waveform import get_fd_waveform
 from pycbc.filter.matchedfilter import match
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 import pycbc
@@ -26,7 +23,6 @@ parser.add_argument('-l', '--ecc_lb', type=float, required=True,
 dest='ecc_lower_bound', help='eccentricity lower bound')
 parser.add_argument('-u', '--ecc_ub', type=float, required=True,
 dest='ecc_upper_bound', help='eccentricity upper bound')
-parser.add_argument('-f', '--fileind', type=int, required=True, dest='file_ind', help='filename index')
 parser.add_argument('-m', '--masses_num', type=int, required=False, dest='mass_num', default=10)
 parser.add_argument('-i', '--inclination_num', type=int, required=False, dest='inc_num', default=10)
 parser.add_argument('-e', '--eccentricity_num', type=int, required=False, dest='ecc_num', default=10)
@@ -36,7 +32,7 @@ args = parser.parse_args()
 start = datetime.now()
 print ("Start time: %s" % start)
 
-my_txt_files = ['ecc_inj_output0.txt', 'ecc_inj_output1.txt', 'ecc_inj_output2.txt', 'ecc_inj_output3.txt', 'ecc_inj_output4.txt']
+my_txt_files = ['ecc_inj_output_ecc0.txt', 'ecc_inj_output_ecc1.txt', 'ecc_inj_output_ecc2.txt', 'ecc_inj_output_ecc3.txt', 'ecc_inj_output_ecc4.txt']
 my_tbank_files = ['stand.hdf', 'ebank.hdf']
 
 
@@ -71,7 +67,7 @@ else:
 if ((u'long_asc_nodes') not in keys):
 	necc_lan = np.zeros(len(necc_mass1))
 else:
-	necc_lan = f_necc['inclination'][:]
+	necc_lan = f_necc['long_asc_nodes'][:]
 
 
 
@@ -104,7 +100,7 @@ m2s = []
 for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 	for ecc_ind in range(0,ecc_num):
 		if (my_inj_ecc[ecc_ind] <= args.ecc_upper_bound) and (my_inj_ecc[ecc_ind] >= args.ecc_lower_bound):
-			for m2_ind in (0,mass_num):
+			for m2_ind in range(0,mass_num):
 				for inc_ind in range(0,inc_num):
 					for lan_ind in range(0,long_asc_nodes_num):
 						for loc_ind in range(0,location_sample_number):
@@ -138,7 +134,7 @@ arr_m1 = np.reshape(arr_m1, (len(arr_m1),1))
 arr_m2 = np.reshape(arr_m2, (len(arr_m2),1))
 my_arr = np.hstack((arr_m1, arr_m2, arr_fitting_factors))
 
-with open(my_txt_files[args.file_ind], "ab") as f:
+with open(my_txt_files[args.batch_num], "ab") as f:
 	np.savetxt(f, X=my_arr, delimiter=',')
 f.close()
 
