@@ -111,7 +111,7 @@ def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index,
 	print ("Injection mass2: %s" % inj_m2)
 	print ("Injection inclination: %s" % inj_inc[inc_index])
 	print ("Injection eccentricity: %s" % inj_ecc[ecc_index])
-	print ("Injection long asc nodes: %s" % inj_long_asc_nodes[lan_index])
+	print ("Injection long asc nodes: %s" % inj_lan[lan_index])
 	print ("Injection RA: %s" % ra)
 	print ("Injection Dec: %s" % dec)
 	print ("Injection polarization angle: %s" % pol_angle)

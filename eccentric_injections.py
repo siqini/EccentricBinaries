@@ -81,11 +81,17 @@ print ("Total injection number: %s" % total_inj_num)
 fitting_factors = []
 m1s = []
 m2s = []
+incs = []
+eccs = []
+lans = []
+ras = []
+decs = []
+pols = []
 
 for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 	for ecc_ind in range(0,ecc_num):
 		if (my_inj_ecc[ecc_ind] <= args.ecc_upper_bound) and (my_inj_ecc[ecc_ind] >= args.ecc_lower_bound):
-			for m2_ind in (0,mass_num):
+			for m2_ind in range(0,mass_num):
 				for inc_ind in range(0,inc_num):
 					for lan_ind in range(0,long_asc_nodes_num):
 						for loc_ind in range(0,location_sample_number):
@@ -105,19 +111,38 @@ for m1_ind in [args.batch_num*2, (args.batch_num*2)+1]:
 								tp_apx=necc_apx,
 								searching_radius=args.searching_radius,
 								psd_file=args.psd_filename, inj_mass1 = my_inj_mass1, inj_mass2 = my_inj_mass2, inj_ecc = my_inj_ecc, inj_lan = my_inj_long_asc_nodes, inj_inc = my_inj_inc, my_ras = sample_ras, my_decs = sample_decs, my_pols = sample_pols, my_detector = d, time=my_time))
-								m1s.append(inj_mass1[m1_ind])
-								m2s.append(inj_mass2[m2_ind])
+								m1s.append(my_inj_mass1[m1_ind])
+								m2s.append(my_inj_mass2[m2_ind])
+								incs.append(my_inj_inc[inc_ind])
+								eccs.append(my_inj_ecc[ecc_ind])
+								lans.append(my_inj_long_asc_nodes[lan_ind])
+								ras.append(sample_ras[loc_ind])
+								decs.append(sample_decs[loc_ind])
+								pols.append(sample_pols[pol_ind])
 
 # Convert plotted lists into arrays
 arr_fitting_factors = np.asarray(fitting_factors)
 arr_m1 = np.asarray(m1s)
 arr_m2 = np.asarray(m2s)
+arr_inc = np.asarray(incs)
+arr_ecc = np.asarray(eccs)
+arr_lan = np.asarray(lans)
+arr_ra = np.asarray(ras)
+arr_dec = np.asarray(decs)
+arr_pol = np.asarray(pols)
 
 # Save into file
 arr_fitting_factors = np.reshape(arr_fitting_factors, (len(arr_fitting_factors),1))
 arr_m1 = np.reshape(arr_m1, (len(arr_m1),1))
 arr_m2 = np.reshape(arr_m2, (len(arr_m2),1))
-my_arr = np.hstack((arr_m1, arr_m2, arr_fitting_factors))
+arr_inc = np.reshape(arr_inc, (len(arr_inc),1))
+arr_ecc = np.reshape(arr_ecc, (len(arr_ecc),1))
+arr_lan = np.reshape(arr_lan, (len(arr_lan),1))
+arr_ra = np.reshape(arr_ra, (len(arr_ra),1))
+arr_dec = np.reshape(arr_dec, (len(arr_dec),1))
+arr_pol = np.reshape(arr_pol, (len(arr_pol),1))
+
+my_arr = np.hstack((arr_m1, arr_m2, arr_fitting_factors, arr_inc, arr_ecc, arr_lan, arr_ra, arr_dec, arr_pol))
 
 with open(my_txt_files[args.file_ind], "ab") as f:
 	np.savetxt(f, X=my_arr, delimiter=',')
