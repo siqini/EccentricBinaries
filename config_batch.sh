@@ -1,10 +1,10 @@
 Universe = vanilla
-Executable = main.sh
+Executable = main_batch.sh
 accounting_group = aei.prod.cbc.bns
 
-Error = /work/siqi.ni/error/batch_nn_${Process}.err
-Output = /work/siqi.ni/out/batch_nn_${Process}.out
-Log = /work/siqi.ni/logs/batch_nn_${Process}.log
+Error = /work/siqi.ni/error/batch_nn_$(Process).err
+Output = /work/siqi.ni/out/batch_nn_$(Process).out
+Log = /work/siqi.ni/logs/batch_nn_$(Process).log
 
 should_transfer_files = YES
 transfer_input_files = main_batch.py, env.tar.gz, stand.hdf, H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt   
