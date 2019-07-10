@@ -10,7 +10,6 @@ should_transfer_files = YES
 transfer_input_files = GenTempBank.py, env.tar.gz, H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt
 WhenToTransferOutput = ON_EXIT 
 
-Arguments = $(Process)
 RequestCpus = 4
 RequestMemory = 4000
-Queue 100
+Queue 1
