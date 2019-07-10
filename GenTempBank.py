@@ -64,7 +64,7 @@ while k < args.template_number:    # get random parameters
     my_ecc = np.random.uniform(low=0., high=0.4)
     my_lan = np.random.uniform(low=0., high=2*np.pi)
     my_inc = np.random.uniform(low=0., high=np.pi)
-    fitting_factor = GetFittingFactor(mass1 = m1, mass2 = m2, tp_m1 = my_tp_m1, tp_m2 = my_tp_m2, 
+    fitting_factor = GetFittingFactor(mass1 = m1, mass2 = m2, tp_m1 = my_tp_m1, tp_m2 = my_tp_m2, tp_ecc = my_tp_ecc, tp_lan = my_tp_lan, tp_inc = my_tp_inc,
     ecc = my_ecc, 
     lan = my_lan,
     inc = my_inc,
