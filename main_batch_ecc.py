@@ -47,14 +47,22 @@ masses2 = masses1 = np.linspace(1.1, 1.6, num=10)
 
 f_necc = h5py.File(args.tbank_filename, 'r')
 necc_mass1 = f_necc['mass1'][:]
-necc_mass2 = f_necc['mass2'][:]
-necc_apx = f_necc['approximant'][:]
+total_len = len(necc_mass1)
+start_index = int(354*args.batch_num)
+end_index = start_index + 354
+if (end_index > total_len):
+    end_index = total_len
+
+necc_mass1 = necc_mass1[start_index:end_index]
+necc_mass2 = f_necc['mass2'][start_index:end_index]
+necc_apx = f_necc['approximant'][start_index:end_index]
 for i in range(0, len(necc_apx)):
     necc_apx[i] = 'EccentricFD'
-ecc_ecc = f_necc['eccentricity'][:]
-ecc_lan = f_necc['long_asc_nodes'][:]
-ecc_inc = f_necc['inclination'][:]
+ecc_ecc = f_necc['eccentricity'][start_index:end_index]
+ecc_lan = f_necc['long_asc_nodes'][start_index:end_index]
+ecc_inc = f_necc['inclination'][start_index:end_index]
 
+f_necc.close()
 
 
 
@@ -110,7 +118,6 @@ def GetGlobalMatch(i_waveform0, j_waveform0, tp_apx, tp_m1, tp_m2, tp_ecc, tp_la
                            f_low = 30,
                            freq_step = 4)
     local_matches = np.zeros(len(tp_m1))
-    rev_temp_counter = 0
     #iterate through the given template bank
     for k in range(0,len(tp_m1)):
         this_tp_m1 = tp_m1[k]
@@ -122,7 +129,6 @@ def GetGlobalMatch(i_waveform0, j_waveform0, tp_apx, tp_m1, tp_m2, tp_ecc, tp_la
             local_matches[k] = 0.
         else:
             # generate templates as needed
-            rev_temp_counter += 1
             one_relevant_temp = GenTemplate(mass1 = this_tp_m1, mass2 = this_tp_m2, apx = tp_apx[k], ecc = tp_ecc[k], lan = tp_lan[k],inc = tp_inc[k], f_low=30, freq_step=4)
             one_local_match = GetMatch(waveform0, one_relevant_temp)
             local_matches[k] = one_local_match
@@ -133,11 +139,11 @@ def GetGlobalMatch(i_waveform0, j_waveform0, tp_apx, tp_m1, tp_m2, tp_ecc, tp_la
 inj_counter = 0
 # iterate through all injections
 print ("inj_num, inj_mass1, inj_mass2, fitting_factor")
-this_inj_mass1 = masses1[args.batch_num]
-for j in range(0,len(masses2)):
-    inj_counter += 1
-    #print ("Injection number: %s" % inj_counter)
-    this_global_match = GetGlobalMatch(i_waveform0 = args.batch_num,
+for i in range(0,len(masses1)): 
+    for j in range(0,len(masses2)):
+        inj_counter += 1
+        #print ("Injection number: %s" % inj_counter)
+        this_global_match = GetGlobalMatch(i_waveform0 = i,
                                         j_waveform0 = j,
                                         tp_apx = necc_apx,
                                         tp_m1 = necc_mass1,
@@ -145,9 +151,10 @@ for j in range(0,len(masses2)):
                                         tp_ecc = ecc_ecc,
                                         tp_lan = ecc_lan,
                                         tp_inc = ecc_inc,
-                                        searching_radius = 0.05)
-    this_inj_mass2 = masses2[j]
-    print ("%d, %f, %f, %f" % (inj_counter, this_inj_mass1, this_inj_mass2, this_global_match))
+                                        searching_radius = 0.001)
+        this_inj_mass1 = masses1[i]
+        this_inj_mass2 = masses2[j]
+        print ("%d, %f, %f, %f" % (inj_counter, this_inj_mass1, this_inj_mass2, this_global_match))
     
 
 
