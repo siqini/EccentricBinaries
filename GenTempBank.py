@@ -5,10 +5,13 @@ from pycbc.filter.matchedfilter import match
 import pycbc
 import pycbc.psd
 import argparse
+import h5py
+import matplotlib.pyplot as plt 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--tnum', type=int, required=True, dest='template_number')
 parser.add_argument('-s', '--seed', type=int, required=True, dest='random_seed')
+parser.add_argument('-o', '--output', type=str, required=True, dest='output_file')
 args = parser.parse_args()
 
 np.random.seed(args.random_seed)
@@ -56,10 +59,11 @@ my_tp_m2 = []
 my_tp_ecc = []
 my_tp_lan = []
 my_tp_inc = []
+failed_attempts = np.zeros(args.template_number)
 
 print ("mass1, mass2, eccentricity, long_asc_nodes, inclination")
-k = 0
-while k < args.template_number:    # get random parameters
+k = 0 # size of template bank
+while k<args.template_number: 
     m1, m2 = np.random.uniform(low=20., high=30., size=2)
     my_ecc = np.random.uniform(low=0., high=0.4)
     my_lan = np.random.uniform(low=0., high=2*np.pi)
@@ -78,5 +82,25 @@ while k < args.template_number:    # get random parameters
         my_tp_inc.append(my_inc)
         print ("%f, %f, %f, %f, %f" % (m1, m2, my_ecc, my_lan, my_inc))
     else: 
+        failed_attempts[k] += 1
         continue
+
+arr_tp_m1 = np.asarray(my_tp_m1)
+arr_tp_m2 = np.asarray(my_tp_m2)
+arr_tp_ecc = np.asarray(my_tp_ecc)
+arr_tp_lan = np.asarray(my_tp_lan)
+arr_tp_inc = np.asarray(my_tp_inc)
+
+o = h5py.File(args.output_file, 'w')
+o.create_dataset('mass1', data=arr_tp_m1)
+o.create_dataset('mass2', data=arr_tp_m2)
+o.create_dataset('eccentricity', data=arr_tp_ecc)
+o.create_dataset('long_asc_nodes', data=arr_tp_lan)
+o.create_dataset('inclination', data=arr_tp_inc)
+
+o.close()
+
+np.savetxt('failed_attempts.out', failed_attempts, delimiter=',')
+
+
 
