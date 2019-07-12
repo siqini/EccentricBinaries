@@ -1,0 +1,16 @@
+Universe = vanilla
+Executable = pycbc_brute_bank.sh
+accounting_group = aei.prod.cbc.bns 
+
+Error = /work/siqi.ni/error/brutebank/brutebank.err 
+Output = /work/siqi.ni/out/brutebank/brutebank.out 
+Log = /work/siqi.ni/logs/brutebank/brutebank.log 
+
+should_transfer_files = YES
+transfer_input_files = pycbc_brute_bank.py, env.tar.gz, H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt
+transfer_output_files = nospinbank.hdf 
+WhenToTransferOutput = ON_EXIT 
+
+RequestCpus = 4
+RequestMemory = 4000
+Queue 1
