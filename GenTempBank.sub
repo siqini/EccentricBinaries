@@ -1,0 +1,15 @@
+Universe = vanilla
+Executable = GenTempBank.sh
+accounting_group = aei.prod.cbc.bns
+
+Error = /work/siqi.ni/error/gentbank/gentempbank_$(Process).err
+Output = /work/siqi.ni/out/gentbank/gentempbank_$(Process).out 
+Log = /work/siqi.ni/logs/gentbank/gentempbank_$(Process).log
+
+should_transfer_files = YES 
+transfer_input_files = GenTempBank.py, env.tar.gz, H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt
+WhenToTransferOutput = ON_EXIT 
+
+RequestCpus = 4
+RequestMemory = 4000
+Queue 1

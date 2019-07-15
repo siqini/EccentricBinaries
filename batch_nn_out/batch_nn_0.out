@@ -1,0 +1,21 @@
+New python executable in env/bin/python2
+Not overwriting existing python script env/bin/python (you must use env/bin/python2)
+Installing setuptools, pip...done.
+Overwriting env/bin/activate with new content
+Overwriting env/bin/activate.fish with new content
+Overwriting env/bin/activate.csh with new content
+Running virtualenv with interpreter /usr/bin/python2
+Start time: 2019-07-07 17:32:09.917773
+inj_num, inj_mass1, inj_mass2, fitting_factor
+1, 1.100000, 1.100000, 0.919806
+2, 1.100000, 1.155556, 0.985302
+3, 1.100000, 1.211111, 0.988402
+4, 1.100000, 1.266667, 0.984090
+5, 1.100000, 1.322222, 0.992819
+6, 1.100000, 1.377778, 0.992790
+7, 1.100000, 1.433333, 0.993921
+8, 1.100000, 1.488889, 0.993117
+9, 1.100000, 1.544444, 0.963182
+10, 1.100000, 1.600000, 0.996763
+Ending time: 2019-07-08 14:03:18.911858
+Runtime: 20:31:08.994085
