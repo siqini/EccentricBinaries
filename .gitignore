@@ -7,3 +7,5 @@ eccentric_papers
 Untitled*
 *.txt.gz
 *.out
+*.h5
+SXS*
