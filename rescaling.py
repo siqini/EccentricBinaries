@@ -1,14 +1,9 @@
-import pycbc.waveform
 import numpy as np
 import h5py
-import pycbc
-import pycbc.psd 
-from pycbc.waveform import get_td_waveform
 from pycbc import types 
 import lal
 
-
-def rescale (simulation_path, total_mass, new_time_interval, real):
+def rescale (simulation_path, total_mass, real, new_time_interval = 1.0/4096):
     rh_file = simulation_path 
     rh_data = h5py.File(rh_file, 'r')
 
