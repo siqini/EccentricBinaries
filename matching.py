@@ -12,7 +12,7 @@ import sys
 
 from datetime import datetime
 
-import rescaling.py
+import rescaling
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--sxs_id', type=str, required=True, dest='sxs_id')
@@ -90,7 +90,7 @@ def GetFittingFactor(comp_mass1, comp_mass2, waveform0, tp_apx, tp_m1, tp_m2, tp
         if (percentage_diff > radius):
             matches.append(0.)
         else: 
-            hp, hc = get_td_waveform(approximant = tp_apx[k],
+            hp, hc = get_td_waveform(approximant = 'EccentricTD',
                                     mass1 = tp_m1[k],
                                     mass2 = tp_m2[k],
                                     eccentricity = tp_ecc[k],
@@ -98,7 +98,9 @@ def GetFittingFactor(comp_mass1, comp_mass2, waveform0, tp_apx, tp_m1, tp_m2, tp
                                     inclination = tp_inc[k],
                                     f_lower = f_low,
                                     delta_t = waveform0.delta_t)
-            matches.append(GetMatch(waveform0, hp))
+            this_match = GetMatch(waveform0, hp)
+            matches.append(this_match)
+            print ('Found a nontrivial match: at template %d:  %s' % (k, this_match))
     matches = np.asarray(matches)
     fitting_factor = np.amax(matches)
     return fitting_factor
