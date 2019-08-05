@@ -49,8 +49,10 @@ request = requests.get("https://data.black-holes.org/catalog.json", headers={'ac
 sxs_full_json = request.json()
 sxs_catalog_json = sxs_full_json['simulations']
 mass_ratio = sxs_catalog_json[args.sxs_id]['reference_mass_ratio']
+eccentricity_str = sxs_catalog_json[args.sxs_id]['reference_eccentricity']
 
 print ('Simulation mass ratio: %s' % mass_ratio)
+print ('Simulation eccentricity: ' + eccentricity_str)
 
 # Compute the component masses 
 sim_m2 = args.total_mass/(mass_ratio+1.)
