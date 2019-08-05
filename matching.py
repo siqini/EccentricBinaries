@@ -15,8 +15,7 @@ from datetime import datetime
 import rescaling
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--sxs_id', type=str, required=True, dest='sxs_id')
-parser.add_argument('--simulation', type=str, required=True, dest='simulation_path')
+parser.add_argument('--sxs_ids_file', type=str, required=True, dest='sxs_ids_file')
 parser.add_argument('--total_mass', type=float, required=True, dest='total_mass')
 parser.add_argument('--template_bank', type=str, required=True, dest='template_bank' )
 parser.add_argument('--psd', type=str, required=False, dest='psd_filename', default = 'H1L1-O1_C02_HARM_MEAN_PSD-1126051217-11203200.txt')
@@ -26,13 +25,7 @@ args = parser.parse_args()
 
 start = datetime.now()
 print ("Start time: %s" % start)
-
-print ('SXS ID: ' + args.sxs_id)
 sys.stdout.flush()
-
-# Rescale the given simulation waveform to the chosen total mass 
-sp = rescaling.rescale(simulation_path = args.simulation_path, total_mass = args.total_mass, real = True)
-sc = rescaling.rescale(simulation_path = args.simulation_path, total_mass = args.total_mass, real = False)
 
 # Grab the template bank info 
 f_bank = h5py.File(args.template_bank, 'r')
@@ -44,23 +37,23 @@ bank_inc = f_bank['inclination'][:]
 bank_apx = f_bank['approximant'][:]
 f_bank.close()
 
-# Get the reference mass ratio of the simulation
 request = requests.get("https://data.black-holes.org/catalog.json", headers={'accept': 'application/citeproc+json'})
 sxs_full_json = request.json()
 sxs_catalog_json = sxs_full_json['simulations']
-mass_ratio = sxs_catalog_json[args.sxs_id]['reference_mass_ratio']
-eccentricity_str = sxs_catalog_json[args.sxs_id]['reference_eccentricity']
 
-print ('Simulation mass ratio: %s' % mass_ratio)
-print ('Simulation eccentricity: ' + eccentricity_str)
+sxs_ids = np.loadtxt(fname = args.sxs_ids_file, 
+                    dtype = str,
+                    delimiter = " ")
 
-# Compute the component masses 
-sim_m2 = args.total_mass/(mass_ratio+1.)
-sim_m1 = args.total_mass - sim_m2
+paths = []
+for sxs_id in sxs_ids:
+    folder_name = sxs_id.replace(":", "_")
+    path = folder_name + '/rhOverM_Asymptotic_GeometricUnits_CoM.h5'
+    paths.append(path)
 
-print ('Component mass1: %s' % sim_m1)
-print ('Component mass2: %s' % sim_m2)
-
+number_injections = len(paths)
+print ('Number of simulations: %d' % number_injections)
+print ('Total mass: %s' % args.total_mass)
 sys.stdout.flush()
 
 def GetMatch (template0,template1, psd_file =args.psd_filename, f_low=30):
@@ -102,12 +95,33 @@ def GetFittingFactor(comp_mass1, comp_mass2, waveform0, tp_apx, tp_m1, tp_m2, tp
                                     delta_t = waveform0.delta_t)
             this_match = GetMatch(waveform0, hp)
             matches.append(this_match)
-            print ('Found a nontrivial match: at template %d:  %s' % (k, this_match))
+            #print ('Found a nontrivial match: at template %d:  %s' % (k, this_match))
     matches = np.asarray(matches)
     fitting_factor = np.amax(matches)
     return fitting_factor
 
-ff = GetFittingFactor(comp_mass1 = sim_m1, 
+print ("Simulation number, SXS ID, Simulation mass ratio, Simulation eccentricity, Component mass1, Component mass2, Fitting factor")
+sys.stdout.flush()
+for i in range(0, number_injections):
+    sxs_id = sxs_ids[i]
+    path = paths[i]
+
+    # Rescale the waveform to the chosen total mass
+    sp = rescaling.rescale(simulation_path = args.simulation_path, total_mass = args.total_mass, real = True)
+    sc = rescaling.rescale(simulation_path = args.simulation_path, total_mass = args.total_mass, real = False)
+    # Get the reference mass ratio and eccentricity of the simulation
+    mass_ratio = sxs_catalog_json[args.sxs_id]['reference_mass_ratio']
+    eccentricity_str = sxs_catalog_json[args.sxs_id]['reference_eccentricity']
+    if eccentricity_str.startswith('<'):
+        eccentricity = 0.
+    else:
+        eccentricity = float(eccentricity_str)
+
+    # Compute the component masses 
+    sim_m2 = args.total_mass/(mass_ratio+1.)
+    sim_m1 = args.total_mass - sim_m2
+
+    ff = GetFittingFactor(comp_mass1 = sim_m1, 
                       comp_mass2 = sim_m2,
                       waveform0 = sp,
                       tp_apx = bank_apx,
@@ -117,9 +131,11 @@ ff = GetFittingFactor(comp_mass1 = sim_m1,
                       tp_lan = bank_lan,
                       tp_inc = bank_inc,
                       radius = args.radius)
+    
+    print ("%d, " % (i+1) + sxs_id + ", %f, %f, %f, %f, %f" % (mass_ratio, eccentricity, sim_m1, sim_m2, ff))
+    sys.stdout.flush()
 
-print ('Fitting factor: %s' % ff)
-sys.stdout.flush()
+
 end=datetime.now()
 total_runtime = end-start
 print ("Ending time: %s" % end)
