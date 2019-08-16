@@ -1,5 +1,5 @@
 import pycbc
-from pycbc.waveform import get_fd_waveform
+from pycbc.waveform import get_fd_waveform, get_td_waveform
 import numpy as np
 import pycbc.coordinates as co
 from pycbc.distributions import sky_location
@@ -27,7 +27,7 @@ def GenWaveforms (mass1, mass2, apx, ecc, lan, inc, f_low, freq_step):
 			long_asc_nodes = lan,
                         f_lower = f_low,
                         delta_f = 1.0/freq_step)
-    return [hptilde, hctilde]
+    return [hptilde, hctilde]    
 
 """
 function EinheitlicheHimmel
@@ -107,13 +107,37 @@ def GetFittingFactor (mass1_index, mass2_index, inc_index, ecc_index, lan_index,
 			this_local_match = GetMatch(waveform0p = inj_p, waveform0c = inj_c, waveform1p = one_rel_temp_p, waveform1c = one_rel_temp_c, detector_c = fc, detector_p = fp, psd_file=psd_file)
 			local_matches[k] = this_local_match
 	fitting_factor = np.amax(local_matches)
-	print ("Injection mass1: %s" % inj_m1)
-	print ("Injection mass2: %s" % inj_m2)
-	print ("Injection inclination: %s" % inj_inc[inc_index])
-	print ("Injection eccentricity: %s" % inj_ecc[ecc_index])
-	print ("Injection long asc nodes: %s" % inj_long_asc_nodes[lan_index])
-	print ("Injection RA: %s" % ra)
-	print ("Injection Dec: %s" % dec)
-	print ("Injection polarization angle: %s" % pol_angle)
-	print ("Fitting factor: %s" % fitting_factor)
-	return fitting_factor
+	ff_index = int(np.argmax(local_matches))
+	best_match_m1 = tp_m1[ff_index]
+	best_match_m2 = tp_m2[ff_index]
+	return fitting_factor, best_match_m1, best_match_m2
+
+def SingleFF(comp_mass1, comp_mass2, waveform0, tp_apx, tp_m1, tp_m2, tp_ecc, tp_lan, tp_inc, radius, f_low=30):
+    waveform0_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(comp_mass1, comp_mass2)
+    matches = []
+    for k in range(0, len(tp_m1)):
+        template_m1 = tp_m1[k]
+        template_m2 = tp_m2[k]
+        template_mchirp = pycbc.conversions.mchirp_from_mass1_mass2(template_m1, template_m2)
+        diff = abs(waveform0_mchirp - template_mchirp)
+        percentage_diff = diff/waveform0_mchirp
+        if (percentage_diff > radius):
+            matches.append(0.)
+        else: 
+            sp, sc = get_td_waveform(approximant = 'EccentricTD',
+                                    mass1 = tp_m1[k],
+                                    mass2 = tp_m2[k],
+                                    eccentricity = tp_ecc[k],
+                                    long_asc_nodes = tp_lan[k],
+                                    inclination = tp_inc[k],
+                                    f_lower = f_low,
+                                    delta_t = waveform0.delta_t)
+            this_match = GetMatch(waveform0, sp)
+            matches.append(this_match)
+            print ('Found a nontrivial match: at template %d:  %s' % (k, this_match))
+	matches = np.asarray(matches)
+	fitting_factor = np.amax(matches)
+	ff_index = int(np.argmax(matches))
+	best_match_m1 = tp_m1[ff_index]
+	best_match_m2 = tp_m2[ff_index]
+    return fitting_factor, best_match_m1, best_match_m2
